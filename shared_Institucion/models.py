@@ -22,3 +22,4 @@ class Instituto(TenantMixin):
 class Domain(DomainMixin):
     
     pass
+ 

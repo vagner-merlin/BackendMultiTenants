@@ -30,8 +30,6 @@ ALLOWED_HOSTS = []
 # Django Tenants Configuration
 SHARED_APPS = [
     'django_tenants',  # mandatory
-    'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -48,7 +46,7 @@ SHARED_APPS = [
 
 TENANT_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth',     # Solo para tenants
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',

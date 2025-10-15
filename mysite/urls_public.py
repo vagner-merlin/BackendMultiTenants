@@ -36,5 +36,6 @@ def admin_dashboard(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin para gestionar TENANTS
+    path('api/', include('shared_Institucion.urls')),  # API REST para institutos
     path('', admin_dashboard, name='admin_dashboard'),
 ]
