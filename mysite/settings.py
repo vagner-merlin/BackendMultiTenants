@@ -27,19 +27,50 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
-INSTALLED_APPS = [
+# Django Tenants Configuration
+SHARED_APPS = [
+    'django_tenants',  # mandatory
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'corsheaders',  # Para CORS
+    
+    # Shared apps - aplicaciones compartidas entre todos los tenants
+    'shared_Institucion',      # Modelo principal de tenants y dominios
+    'shared_On_premise',       # Funcionalidades compartidas on-premise
+    'shared_Pagos',           # Sistema de pagos compartido
 ]
 
+TENANT_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    
+    # Tenant apps - aplicaciones específicas de cada institución
+    'tenat_apss_Credito',     # Sistema de créditos
+    'tenat_Django_users',     # Usuarios específicos del tenant
+    'tenat_Enums',           # Enumeraciones específicas del tenant
+]
+
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
+# Configuración de modelos de Django Tenants
+TENANT_MODEL = "shared_Institucion.Instituto"
+TENANT_DOMAIN_MODEL = "shared_Institucion.Domain"
+
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware',  # DEBE SER EL PRIMERO
+    'corsheaders.middleware.CorsMiddleware',  # Para CORS
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +81,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'mysite.urls'
+
+# Configuración específica de URLs para django-tenants
+PUBLIC_SCHEMA_URLCONF = 'mysite.urls_public'
+TENANT_URLCONF = 'mysite.urls_tenant'
 
 TEMPLATES = [
     {
@@ -74,7 +109,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django_tenants.postgresql_backend',  # Cambiado para django_tenants
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
@@ -82,6 +117,10 @@ DATABASES = {
         'PORT': 5433,
     }
 }
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
 
 
 # Password validation
@@ -124,3 +163,24 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React frontend
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",  # Vue frontend
+    "http://127.0.0.1:8080",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Django REST Framework Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
