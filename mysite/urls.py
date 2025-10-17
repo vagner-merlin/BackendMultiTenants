@@ -1,20 +1,38 @@
 """
-URL configuration principal para mysite project.
-Este archivo es un fallback - django-tenants usará automáticamente
-urls_public.py o urls_tenant.py según el contexto.
+URL configuration for mysite project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.http import HttpResponse
+from django.urls import path, include
+from django.http import JsonResponse
 
-def root_info(request):
-    return HttpResponse("""
-    <h1>Sistema Financiero Multi-Tenant</h1>
-    <p>Error: No se pudo determinar el esquema.</p>
-    <p>Asegúrate de acceder mediante el dominio correcto.</p>
-    """)
+def home_view(request):
+    """Vista simple para la página principal"""
+    return JsonResponse({
+        'mensaje': 'Sistema Financiero - API Principal',
+        'version': '1.0',
+        'estado': 'activo',
+        'endpoints': {
+            'admin': '/admin/',
+            'api_shared': '/shared/',
+            'docs': 'Usar /shared/api/ para ver APIs disponibles'
+        }
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', root_info, name='root_info'),
+    path('shared/', include('app_shared_Manager.urls_shared')),  # Corregido: usar guión bajo
+    path('', home_view, name='home'),  # Página principal
 ]
